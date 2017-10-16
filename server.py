@@ -10,7 +10,6 @@ import time
 
 app = Flask(__name__)
 es = Elasticsearch([
-    # 'http://ec2-52-25-78-6.us-west-2.compute.amazonaws.com:9200',
     'http://localhost:9200'
 ])
 storage = redis.StrictRedis(host='localhost', port=6379, db=0)
@@ -20,7 +19,6 @@ m = hashlib.md5()
 @app.route('/', methods=['POST'])
 def recommend():
     text = str(request.form['text'])
-    # print(text)
     excluded = {}
     if 'excluded' in request.form:
         excluded = request.form['excluded'].split(',')
@@ -28,8 +26,6 @@ def recommend():
     splitted = re.split(',| ', text)
     sample = random.sample(splitted, len(splitted)/4)
     sampled_text = ' '.join(sample)
-    print(sampled_text)
-    print(excluded)
     result = es.search(
         index='trippr',
         body={
@@ -69,7 +65,6 @@ def recommend():
 @app.route('/v1/search', methods=['POST'])
 def v1_search():
     text = str(request.form['text'])
-    # print(text)
     excluded = {}
     if 'excluded' in request.form:
         excluded = request.form['excluded'].split(',')
@@ -113,6 +108,7 @@ def v1_search():
                     status=200,
                     mimetype="application/json")
 
+
 @app.route('/v1/hit', methods=['POST'])
 def hit():
     text = str(request.form['text'])
@@ -141,4 +137,3 @@ def pics():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
-
